@@ -22,7 +22,7 @@
 </script>
 ```
 
-[TRY IT NOW](https://github.com/Alex-xd/drag-it/index.html)
+[TRY IT NOW](https://alex-xd.github.io/drag-it/)
 
 ## Installation
 
