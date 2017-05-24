@@ -1,0 +1,40 @@
+{
+  "name": "drag-it",
+  "version": "1.0.0",
+  "description": "Free to drag the HTML element to any place 🍭",
+  "main": "dist/drag-it.js",
+  "scripts": {
+    "init": "./node_modules/.bin/commitizen init cz-conventional-changelog --save-dev --save-exact --force",
+    "commit": "git-cz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:Alex-xd/drag-it.git"
+  },
+  "keywords": [
+    "drag",
+    "dragIt",
+    "dragDiv",
+    "lightweight",
+    "ES6 module",
+    "commonjs",
+    "amd",
+    "client",
+    "browser"
+  ],
+  "author": "Alex-xd",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Alex-xd/drag-it/issues"
+  },
+  "homepage": "https://github.com/Alex-xd/drag-it#readme",
+  "devDependencies": {
+    "commitizen": "^2.9.6",
+    "cz-conventional-changelog": "^2.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
