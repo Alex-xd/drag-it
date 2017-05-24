@@ -6,9 +6,14 @@
 [![npm](https://img.shields.io/badge/npm-1.0.0-blue.svg)](https://www.npmjs.com/package/drag-it)
 [![lisence](https://img.shields.io/badge/LISENCE-MIT-green.svg)](https://github.com/Alex-xd/preview-upload)
 
-**Free to drag the HTML element to any place.**
+**Free to drag the HTML element to any place. 🍭**
 
-  Tiny、No dependence、High Performance 🍭 
+- Tiny
+- No dependence
+- High Performance
+- Mobile supported
+- Easy use
+
 
 ```html
 <div class="box">
@@ -69,7 +74,7 @@ It can pass up to three parameters
 
 | param | means |required |
 |-------|-------|---------|
-|dragger|The dom element which trigger dragging, such as the dialog title bar.| yes |  
+|dragger|The dom element which trigger dragging, such as the dialog title bar.| yes |
 | mover | The dom element which is moving actually, such as the entire dialog. If no declared, the mover will be the dragger. | no|
 | options | Defined Maximum Allows mover to moving out the distance from the current page boundary | no|
 
@@ -85,7 +90,7 @@ It can pass up to three parameters
   const box = document.querySelector('.box')
   const header = box.querySelector('.header')
   dragIt(header, box, { // those 4 declares are default value, u can customize it.
-    overflowLeft: 100,  
+    overflowLeft: 100,
     overflowRight: 100,
     overflowTop: 25,
     overflowBottom: 100
