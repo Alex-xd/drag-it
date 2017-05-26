@@ -1,7 +1,7 @@
 /**
  * Free to drag the HTML element to any place 🍭
  *
- * DragIt v1.1.5
+ * DragIt v1.1.6
  * https://github.com/Alex-xd/drag-it
  *
  * Copyright 2017 Alex-xd
