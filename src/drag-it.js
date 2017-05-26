@@ -1,7 +1,7 @@
 /**
  * Free to drag the HTML element to any place 🍭
  *
- * DragIt v1.0.2
+ * DragIt v1.1.0
  * https://github.com/Alex-xd/drag-it
  *
  * Copyright 2017 Alex-xd
@@ -19,191 +19,209 @@
     registeredInModuleLoader = true
   }
   if (!registeredInModuleLoader) {
-    var old = window.dragIt
-    var api = window.dragIt = factory()
+    var old = window.Dragger
+    var api = window.Dragger = factory()
     api.noConflict = function () {
-      window.dragIt = old
+      window.Dragger = old
       return api
     }
   }
 })(function () {
 
+
   'use strict'
 
-  var getCompatibleAttr = (function () {
-    var div = document.createElement('div')
-    var vendors = 'Khtml O Moz Webkit'.split(' ')
-    var len = vendors.length
-    return function (prop) {
-      if (prop in div.style) return prop
-      if ('-ms-' + prop in div.style) return '-ms-' + prop
-      prop = prop.replace(/^[a-z]/, function (val) {
-        return val.toUpperCase()
-      })
-      while (len--) {
-        if (vendors[len] + prop in div.style) {
-          return vendors[len] + prop
+
+  function Dragger(options) {
+    var defaultOpt = {
+      hasBoundary: false,
+      container: document.documentElement,
+      overflowLeft: 0,
+      overflowRight: 0,
+      overflowTop: 0,
+      overflowBottom: 0
+    }
+
+    this.options = Object.assign({}, defaultOpt, options)
+
+
+    // The dom element which trigger dragging, such as the dialog title bar.
+    this.dragger = null
+
+
+    // The dom element which is moving actually , such as the entire dialog.
+    this.mover = null
+
+
+    this.isDragging = false
+
+
+    // the distance of click from the upper left corner of mover
+    this.diffX = 0
+    this.diffY = 0
+
+
+    // Maximum Allows mover to moving out the distance from the current page boundary
+    this.MAX_X = 0
+    this.MAX_Y = 0
+
+
+    // mover computed style object
+    this.moverStyle = null
+
+
+    // margin can influence absolute position, so need compensation position of mover which if has margins
+    this.marginLeft = 0
+    this.marginTop = 0
+
+
+    // remove attribute draggable while dragging
+    this.hasDraggableAttr = false
+
+
+    if (this.options.hasBoundary) {
+      var running = false
+      var _this = this
+      // change max moved boundary when window resizing
+      window.addEventListener('resize', function () {
+        if (!running) {
+          running = true
+          if (window.requestAnimationFrame) {
+            window.requestAnimationFrame(function () {
+              _this.resetMAX(_this.options.container)
+              running = false
+            })
+          } else {
+            setTimeout(function () {
+              _this.resetMAX(_this.options.container)
+              running = false
+            }, 66)
+          }
         }
-      }
-      return ''
+      })
     }
-  })()
-
-
-  var _typeof = function (target) {
-    var type = Object.prototype.toString.call(target).split(' ')[1].slice(0, -1)
-    if (/^HTML.*Element$/.test(type)) {
-      type = type.match(/^(HTML)(?:.*)(Element)$/)
-      return type[1].concat(type[2])
-    }
-    return type
   }
 
 
-  var compatibleTransform = getCompatibleAttr('transform')
-
-  /**
-   * drag initialization
-   * @param dragger required, The dom element which trigger dragging, such as the dialog title bar.
-   * @param mover not required, The dom element which is moving actually , such as the entire dialog.
-   * @param options not required, Defined Maximum Allows mover to moving out the distance from the current page boundary
-   */
-  return function dragIt(dragger, mover, options) {
-    var defaultOpt = {
-      overflowLeft: 100,
-      overflowRight: 100,
-      overflowTop: 25,
-      overflowBottom: 100
-    }
-
-    if (!dragger) {
+  Dragger.prototype.draggable = function (dragger, mover) {
+    if (arguments.length === 0) {
       console.error('[drag-it]: Need at least one param! Please declare a dragger')
     }
-    if (_typeof(options) === 'Undefined' && _typeof(mover) === 'Undefined') {
-      mover = dragger
+
+    if (!mover) {
+      this.mover = dragger
+    } else {
+      this.mover = mover
     }
-    if (_typeof(mover) === 'Object' && _typeof(options) === 'Undefined') {
-      options = mover
-      mover = dragger
-    }
+    this.dragger = dragger
 
-    var opt = Object.assign({}, defaultOpt, options)
 
-    var isDragging = false
+    this.moverStyle = window.getComputedStyle(this.mover)
+    this.marginLeft = Number(this.moverStyle.marginLeft.split('px')[0])
+    this.marginTop = Number(this.moverStyle.marginTop.split('px')[0])
 
-    var diffX = 0 // the distance of click from the upper left corner of mover
-    var diffY = 0
 
-    var startX = 0 // mover initial position
-    var startY = 0
-
-    var moveX = 0 // relative to the distance of mover itself, directly applied to translate
-    var moveY = 0
-
-    // Maximum Allows mover to moving out the distance from the current page boundary
-    var MAX_X = document.documentElement.clientWidth - mover.offsetWidth + opt.overflowRight // Maximum motion boundary
-    var MAX_Y = document.documentElement.clientHeight - mover.offsetHeight + opt.overflowBottom
-
-    var moverStyle = window.getComputedStyle(mover)
-    var marginLeft = moverStyle.marginLeft.split('px')[0]
-    var marginTop = moverStyle.marginTop.split('px')[0]
-
-    // remove attribute draggable while dragging
-    var hasDraggableAttr = mover.getAttribute('draggable') === 'true'
-    console.warn('[drag-it]: In order to make the drag working, attribute \'draggable\' was temporarily removed during the dragging, then it will be back.')
-
-    // event handlers
-    var mousedown = function (e) {
-      var clientX = e.clientX
-      var clientY = e.clientY
-
-      if (e.type === 'touchstart') {
-        e.preventDefault()  // just apply touchstart event but not mousedown
-        clientX = e.touches[0].clientX
-        clientY = e.touches[0].clientY
-      }
-      if (hasDraggableAttr) {
-        mover.removeAttribute('draggable')
-      }
-      startX = mover.offsetLeft
-      startY = mover.offsetTop
-      diffX = clientX - startX
-      diffY = clientY - startY
-      isDragging = true
+    if (this.mover.getAttribute('draggable') === 'true') {
+      this.hasDraggableAttr = true
+      console.warn('[drag-it]: In order to make the drag working, attribute \'draggable\' was temporarily removed during the dragging, then it will be back.')
     }
 
-    var mousemove = function (e) {
-      if (isDragging) {
-        var clientX = e.clientX
-        var clientY = e.clientY
-
-        if (e.type === 'touchmove') {
-          clientX = e.touches[0].clientX
-          clientY = e.touches[0].clientY
-        }
-
-        moveX = Math.max(-opt.overflowLeft, Math.min(clientX - diffX, MAX_X)) - startX
-        moveY = Math.max(-opt.overflowTop, Math.min(clientY - diffY, MAX_Y)) - startY
-
-        // If the browser does not support transform, the downgrade uses absolute positioning
-        if (compatibleTransform) {
-          mover.style[compatibleTransform] = 'translate3d(' + moveX + 'px,' + moveY + 'px,0)'
-        } else {
-          mover.style.left = moveX + startX - marginLeft + 'px'
-          mover.style.top = moveY + startY - marginTop + 'px'
-        }
-      }
-    }
-
-    var mouseup = function () {
-      if (isDragging) {
-        if (hasDraggableAttr) {
-          mover.setAttribute('draggable', 'true')
-        }
-        mover.style.left = moveX + startX - marginLeft + 'px'
-        mover.style.top = moveY + startY - marginTop + 'px'
-        moveX = 0
-        moveY = 0
-        mover.style[compatibleTransform] = ''
-        isDragging = false
-      }
-    }
-
-    // improve CSS3 transform performance
-    mover.style.willChange = 'transform'
+    // get MAX boundary first time
+    this.resetMAX(this.options.container)
 
     // Press the mouse in the title bar to get the position of the mouse relative to the title bar,
     // because the user can not click on the title bar is the upper left corner
-    dragger.addEventListener('mousedown', mousedown, false)
-    dragger.addEventListener('touchstart', mousedown, false)
+    this.dragger.addEventListener('mousedown', this.onmousedown.bind(this), false)
+    this.dragger.addEventListener('touchstart', this.onmousedown.bind(this), false)
 
     // Mouse to move, calculate the distance of the mouse movement,
     // in order to prevent the moving too fast, the mouse is not moving on the title bar,
     // so set on the document
-    document.addEventListener('mousemove', mousemove, false)
-    document.addEventListener('touchmove', mousemove, false)
+    document.addEventListener('mousemove', this.onmousemove.bind(this), false)
+    document.addEventListener('touchmove', this.onmousemove.bind(this), false)
 
     // When mouse is released, change the mover's left top value, and clear the transform proper
-    document.addEventListener('mouseup', mouseup, false)
-    document.addEventListener('touchend', mouseup, false)
+    document.addEventListener('mouseup', this.onmouseup.bind(this), false)
+    document.addEventListener('touchend', this.onmouseup.bind(this), false)
+  }
 
-    // change max moved boundary when window resizing
-    var running = false
-    window.addEventListener('resize', function () {
-      if (!running) {
-        running = true
-        if (window.requestAnimationFrame) {
-          window.requestAnimationFrame(resetMAX)
-        } else {
-          setTimeout(resetMAX, 66)
-        }
+
+  Dragger.prototype.onmousedown = function (e) {
+    var clientX = e.clientX
+    var clientY = e.clientY
+
+
+    if (e.type === 'touchstart') {
+      // just apply touchstart event but not mousedown
+      e.preventDefault()
+
+      clientX = e.touches[0].clientX
+      clientY = e.touches[0].clientY
+    }
+
+
+    if (this.hasDraggableAttr) {
+      this.mover.removeAttribute('draggable')
+    }
+
+
+    this.diffX = clientX - this.mover.offsetLeft
+    this.diffY = clientY - this.mover.offsetTop
+
+
+    this.isDragging = true
+  }
+
+
+  Dragger.prototype.onmousemove = function (e) {
+    if (this.isDragging) {
+      var clientX = e.clientX
+      var clientY = e.clientY
+      var moveToX = 0
+      var moveToY = 0
+
+
+      if (e.type === 'touchmove') {
+        clientX = e.touches[0].clientX
+        clientY = e.touches[0].clientY
       }
-    })
 
-    function resetMAX() {
-      MAX_X = document.documentElement.clientWidth - mover.offsetWidth + opt.overflowRight
-      MAX_Y = document.documentElement.clientHeight - mover.offsetHeight + opt.overflowBottom
-      running = false
+
+      if (this.options.hasBoundary) {
+        moveToX = Math.max(-this.options.overflowLeft - this.marginLeft, Math.min(clientX - this.diffX - this.marginLeft, this.MAX_X)) + 'px'
+        moveToY = Math.max(-this.options.overflowTop - this.marginTop, Math.min(clientY - this.diffY - this.marginTop, this.MAX_Y)) + 'px'
+      } else {
+        moveToX = clientX - this.diffX - this.marginLeft + 'px'
+        moveToY = clientY - this.diffY - this.marginTop + 'px'
+      }
+
+
+      this.mover.style.left = moveToX
+      this.mover.style.top = moveToY
     }
   }
+
+
+  Dragger.prototype.onmouseup = function () {
+    if (this.isDragging) {
+      if (this.hasDraggableAttr) {
+        this.mover.setAttribute('draggable', 'true')
+      }
+      this.isDragging = false
+    }
+  }
+
+
+  Dragger.prototype.resetMAX = function (container) {
+    if (!container) {
+      container = document.documentElement
+    }
+    this.MAX_X = container.clientWidth - this.mover.clientWidth - this.marginLeft + this.options.overflowRight
+    this.MAX_Y = container.clientHeight - this.mover.clientHeight - this.marginTop + this.options.overflowBottom
+
+    debugger
+
+  }
+
+  return Dragger
 })

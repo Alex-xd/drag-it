@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="Cache-Control" content="no-cache">
   <title>Drag It</title>
@@ -29,7 +30,7 @@
       position: fixed;
       top: 50%;
       left: 50%;
-      margin-top: -150px;
+      margin-top: -200px;
       margin-left: -200px;
       box-shadow: 12px 15px 20px 0 rgba(46, 61, 73, .15);
       border-radius: 5px;
@@ -47,6 +48,7 @@
       padding: 20px;
       color: rgba(0, 0, 0, 0.49);
       border-radius: 5px 5px 0 0;
+      position: absolute;
     }
 
     p {
@@ -54,7 +56,7 @@
       color: rgba(0, 0, 0, 0.49);
     }
   </style>
-  <script src="./src/drag-it.min.js"></script>
+  <script src="./src/drag-it.js"></script>
 </head>
 <body>
 <div class="box">
@@ -62,14 +64,18 @@
   <p>Hello World</p>
 </div>
 <script>
-  const box = document.querySelector('.box')
-  const header = box.querySelector('.header')
-  dragIt(header, box, {
-    overflowLeft: 100,
-    overflowRight: 100,
-    overflowTop: 25,
-    overflowBottom: 100
+  var box = document.querySelector('.box')
+  var header = box.querySelector('.header')
+
+  var dragger = new Dragger({
+    hasBoundary: true,
+    container: box
   })
+  dragger.draggable(header)
+//  var dragger = new Dragger({
+//    hasBoundary: true,
+//  })
+//  dragger.draggable(box)
 </script>
 </body>
 </html>
