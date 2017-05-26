@@ -3,7 +3,7 @@
 
 # Drag It
 
-[![npm](https://img.shields.io/badge/npm-1.1.0-blue.svg)](https://www.npmjs.com/package/drag-it)
+[![npm](https://img.shields.io/badge/npm-1.1.2-blue.svg)](https://www.npmjs.com/package/drag-it)
 [![lisence](https://img.shields.io/badge/LISENCE-MIT-green.svg)](https://github.com/Alex-xd/preview-upload)
 
 **Free to drag the HTML element to any place. 🍭**
@@ -23,7 +23,8 @@
 
 <script>
   const box = document.querySelector('.box');
-  dragIt(box);
+  const dragger = new Dragger();
+  dragger.draggable(box)
 </script>
 ```
 
@@ -63,22 +64,14 @@ DragIt can also be loaded as an AMD, CommonJS or ES6 module.
 
 ```javascript
 const box = document.querySelector('.box');
-dragIt(box);
+const dragger = new Dragger();
+dragger.draggable(box)
 ```
+
 
 ## More
 
-It can pass up to three parameters
-
-`dragIt(dragger, mover, options)`
-
-| param | means |required |
-|-------|-------|---------|
-|dragger|The dom element which trigger dragging, such as the dialog title bar.| yes |
-| mover | The dom element which is moving actually, such as the entire dialog. If no declared, the mover will be the dragger. | no|
-| options | Defined Maximum Allows mover to moving out the distance from the current page boundary | no|
-
-**Fully declared just like this ↓**
+**Fully declare just like this ↓**
 
 ```html
 <div class="box">
@@ -89,14 +82,39 @@ It can pass up to three parameters
 <script>
   const box = document.querySelector('.box')
   const header = box.querySelector('.header')
-  dragIt(header, box, { // those 4 declares are default value, u can customize it.
-    overflowLeft: 100,
-    overflowRight: 100,
-    overflowTop: 25,
-    overflowBottom: 100
+
+  const dragger = new Dragger({
+    hasBoundary: false,
+    container: document.documentElement,
+    overflowLeft: 0,
+    overflowRight: 0,
+    overflowTop: 0,
+    overflowBottom: 0
   })
+
+  dragger.draggable(header, box)
 </script>
 ```
+
+
+### constructor options object
+
+| param        | means          |default |
+|---------------|-------------|---------|
+| hasBoundary| has moving boundary |false|
+| container| declare a container of mover | \<html> element|
+| overflowLeft| the overflow left distance of boundary | 0 |
+|    overflowRight|the overflow right distance of boundary | 0 |
+|    overflowTop|the overflow top distance of boundary | 0 |
+|   overflowBottom|the overflow bottom distance of boundary | 0 |
+
+### instance params
+
+| param | means |required |
+|-------|-------|---------|
+|dragger|The dom element which trigger dragging, such as the dialog title bar.| yes |
+| mover | The dom element which is moving actually, such as the entire dialog. If no declared, the mover will be the dragger. | no|
+
 
 ## License
 
