@@ -1,8 +1,8 @@
 {
   "name": "drag-it",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Free to drag the HTML element to any place 🍭",
-  "main": "dist/drag-it.js",
+  "main": "dist/drag-it.min.js",
   "scripts": {
     "init": "./node_modules/.bin/commitizen init cz-conventional-changelog --save-dev --save-exact --force",
     "commit": "git-cz"
@@ -22,7 +22,7 @@
     "client",
     "browser"
   ],
-  "author": "Alex-xd",
+  "author": "alexxd",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Alex-xd/drag-it/issues"

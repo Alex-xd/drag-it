@@ -1,7 +1,7 @@
 /**
  * Free to drag the HTML element to any place 🍭
  *
- * DragIt v1.0.0
+ * DragIt v1.0.2
  * https://github.com/Alex-xd/drag-it
  *
  * Copyright 2017 Alex-xd
@@ -27,6 +27,9 @@
     }
   }
 })(function () {
+
+  'use strict'
+
   var getCompatibleAttr = (function () {
     var div = document.createElement('div')
     var vendors = 'Khtml O Moz Webkit'.split(' ')
@@ -46,9 +49,8 @@
     }
   })()
 
-  var compatibleTransform = getCompatibleAttr('transform')
 
-  function _typeof(target) {
+  var _typeof = function (target) {
     var type = Object.prototype.toString.call(target).split(' ')[1].slice(0, -1)
     if (/^HTML.*Element$/.test(type)) {
       type = type.match(/^(HTML)(?:.*)(Element)$/)
@@ -57,8 +59,11 @@
     return type
   }
 
+
+  var compatibleTransform = getCompatibleAttr('transform')
+
   /**
-   * Dragging initialization
+   * drag initialization
    * @param dragger required, The dom element which trigger dragging, such as the dialog title bar.
    * @param mover not required, The dom element which is moving actually , such as the entire dialog.
    * @param options not required, Defined Maximum Allows mover to moving out the distance from the current page boundary
@@ -182,14 +187,23 @@
     document.addEventListener('mouseup', mouseup, false)
     document.addEventListener('touchend', mouseup, false)
 
-    // change max moved boundary when window has been resized
-    var timer = null
+    // change max moved boundary when window resizing
+    var running = false
     window.addEventListener('resize', function () {
-      clearTimeout(timer)
-      setTimeout(function () {
-        MAX_X = document.documentElement.clientWidth - mover.offsetWidth + opt.overflowRight
-        MAX_Y = document.documentElement.clientHeight - mover.offsetHeight + opt.overflowBottom
-      }, 200)
+      if (!running) {
+        running = true
+        if (window.requestAnimationFrame) {
+          window.requestAnimationFrame(resetMAX)
+        } else {
+          setTimeout(resetMAX, 66)
+        }
+      }
     })
+
+    function resetMAX() {
+      MAX_X = document.documentElement.clientWidth - mover.offsetWidth + opt.overflowRight
+      MAX_Y = document.documentElement.clientHeight - mover.offsetHeight + opt.overflowBottom
+      running = false
+    }
   }
 })
