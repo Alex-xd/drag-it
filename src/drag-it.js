@@ -126,6 +126,11 @@
       console.warn('[drag-it]: In order to make the drag working, attribute \'draggable\' was temporarily removed during the dragging, then it will be back.')
     }
 
+    if (this.moverStyle.position !== 'absolute' && this.moverStyle.position !== 'fixed') {
+      this.mover.style.position = 'fixed'
+      console.warn('[drag-it]: the position attribute of mover is \"' + this.moverStyle.position + '\", in order to move it, position attribute has been changed to \"fixed\"')
+    }
+
     // get MAX boundary first time
     this.resetMAX(this.options.container)
 
@@ -218,9 +223,6 @@
     }
     this.MAX_X = container.clientWidth - this.mover.clientWidth - this.marginLeft + this.options.overflowRight
     this.MAX_Y = container.clientHeight - this.mover.clientHeight - this.marginTop + this.options.overflowBottom
-
-    debugger
-
   }
 
   return Dragger
