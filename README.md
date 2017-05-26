@@ -3,7 +3,7 @@
 
 # Drag It
 
-[![npm](https://img.shields.io/badge/npm-1.1.2-blue.svg)](https://www.npmjs.com/package/drag-it)
+[![npm](https://img.shields.io/badge/npm-1.1.3-blue.svg)](https://www.npmjs.com/package/drag-it)
 [![lisence](https://img.shields.io/badge/LISENCE-MIT-green.svg)](https://github.com/Alex-xd/preview-upload)
 
 **Free to drag the HTML element to any place. 🍭**
