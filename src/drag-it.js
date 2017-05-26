@@ -1,7 +1,7 @@
 /**
  * Free to drag the HTML element to any place 🍭
  *
- * DragIt v1.1.3
+ * DragIt v1.1.4
  * https://github.com/Alex-xd/drag-it
  *
  * Copyright 2017 Alex-xd
@@ -120,6 +120,8 @@
     this.marginLeft = Number(this.moverStyle.marginLeft.split('px')[0])
     this.marginTop = Number(this.moverStyle.marginTop.split('px')[0])
 
+    mover.style.right = 'initial'
+    mover.style.bottom = 'initial'
 
     if (this.mover.getAttribute('draggable') === 'true') {
       this.hasDraggableAttr = true
